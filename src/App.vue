@@ -1,16 +1,39 @@
 <script setup>
-import { reactive, computed, onMounted } from 'vue';
+import { ref, reactive, computed, watch, onMounted } from 'vue';
 
-const urlRegExp = '^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)$';
+const showPreviewAndSource = ref(false);
 
 const form = reactive({
-  'color': '',
+  'color': null,
   'avatar': null,
   'fullname': null,
-  'facebook': null
+  'logo': null,
+  'jobtitle': null,
+  'department': null,
+  'company': null,
+  'phone': null,
+  'mobile': null,
+  'email': null,
+  'website': null,
+  'addressline1': null,
+  'addressline2': null,
+  'addressline3': null,
+  'zipcode': null,
+  'locality': null,
+  'country': null,
+  'facebook': null,
+  'twitter': null,
+  'linkedin': null,
+  'instagram': null,
+  'youtube': null,
+  'bannerimg': null,
+  'bannerurl': null,
+  'ecofriendly': null,
+  'privacy': null,
 });
 
 const color = computed(() => {
+  if (!form.color) return '#f000b8';
   return ((new RegExp('^#(?:[0-9a-f]{3}){1,2}$')).test(form.color.toLowerCase())) ? form.color : '#f000b8';
 });
 
@@ -132,7 +155,14 @@ const html = computed(() => {
     `;
   }
 
-  let fullname = form.fullname ? form.fullname : 'John Doe';
+  let fullname = '';
+  if (form.fullname) {
+    fullname = `
+      <h2 color="#000000" style="margin: 0px; font-size: 18px; color: rgb(0, 0, 0); font-weight: 600;">
+        <span>${form.fullname}</span>
+      </h2>
+    `;
+  }
 
   let jobtitle = '';
   if (form.jobtitle) {
@@ -487,9 +517,7 @@ const html = computed(() => {
                     <div></div>
                   </td>
                   <td style="padding: 0px; vertical-align: middle;">
-                    <h2 color="#000000" style="margin: 0px; font-size: 18px; color: rgb(0, 0, 0); font-weight: 600;">
-                      <span>${fullname}</span>
-                    </h2>
+                    ${fullname}
                     ${jobtitle}
                     ${departmentCompany}
                     <table cellpadding="0" cellspacing="0"
@@ -537,12 +565,29 @@ const htmlClean = computed(() => {
     .replace(/\>[\r\n ]+\</g, "><")
     .replace(/(<.*?>)|\s+/g, (m, $1) => $1 ? $1 : ' ')
     .trim();
-})
+});
+
+watch(form, () => {
+  checkShowPreviewAndSource();
+});
+
+onMounted(() => {
+  checkShowPreviewAndSource();
+});
+
+function checkShowPreviewAndSource() {
+  showPreviewAndSource.value = false;
+  for (const [k, v] of Object.entries(form)) {
+    if (v) {
+      showPreviewAndSource.value = true;
+    }
+  }
+};
 
 </script>
 
 <template>
-  <div class="container mx-auto flex gap-6 my-6">
+  <div class="container mx-auto flex gap-6 my-6 px-4">
     <div class="flex-1 bg-base-200 rounded-lg p-4">
       <div>
 
@@ -692,7 +737,7 @@ const htmlClean = computed(() => {
       </div>
     </div>
     <div id="preview" class="flex-shrink-0">
-      <div class="sticky top-6">
+      <div class="sticky top-6" v-if="showPreviewAndSource">
         <div v-html="html" class="mb-6"></div>
         <textarea class="textarea textarea-bordered w-full" v-html="htmlClean" rows="15"></textarea>
       </div>
